@@ -1,0 +1,106 @@
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>各省疫情数据拟合</title>
+   <link rel="stylesheet" href="/static/css/materialize.min.css" />
+   <script type="text/javascript" src="/static/js/materialize.min.js"></script>
+   <script type="text/javascript" src="/static/js/echarts.min.js"></script>
+   <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+   <div class="section no-pad-bot" id="index-banner">
+      <div class="container">
+         <h1 class="header center red-text text-lighten-1">各省疫情数据拟合</h1>
+         <div class="row center">
+            <h5 class="header col s12 light">基于高斯分布的各省疫情人数数据拟合（确诊数-死亡数-治愈数）</h5>
+         </div>
+
+         <div class="row">
+            <div class="col s12">
+               <div class="card large" id='charts'>
+               </div>
+            </div>
+         </div>
+
+         <div class="row center">
+            <div class="input-field col s4 offset-s4">
+               <select id='select_area' onchange="change_select()">
+                  <option value="武汉" selected>武汉</option>
+                  <option value="湖北省">湖北省</option>
+                  <option value="河南省">河南省</option>
+                  <option value="河北省">河北省</option>
+                  <option value="广东省">广东省</option>
+                  <option value="陕西省">陕西省</option>
+                  <option value="福建省">福建省</option>
+                  <option value="湖南省">湖南省</option>
+                  <option value="浙江省">浙江省</option>
+                  <option value="重庆市">重庆市</option>
+                  <option value="黑龙江省">黑龙江省</option>
+                  <option value="四川省">四川省</option>
+                  <option value="江苏省">江苏省</option>
+                  <option value="安徽省">安徽省</option>
+                  <option value="山东省">山东省</option>
+                  <option value="上海市">上海市</option>
+                  <option value="北京市">北京市</option>
+                  <option value="广西壮族自治区">广西壮族自治区</option>
+                  <option value="江西省">江西省</option>
+               </select>
+               <label>选择省市</label>
+            </div>
+         </div>
+      </div>
+   </div>
+   <script>
+      document.addEventListener('DOMContentLoaded', function () {
+         var elems = document.querySelectorAll('select');
+         var instances = M.FormSelect.init(elems);
+      });
+      $(document).ready(function () {
+         $.post("/data", {
+            province_name: "湖北省",
+            city_name: "武汉"
+         }, function (result) {
+            init_graph(result['true_data'], result['pre_data'], result['x'], '武汉');
+         })
+      });
+
+      function change_select(){
+         var value = $('#select_area').val();
+         $.post("/data", {
+            province_name: value,
+            city_name: "xxx"
+         }, function (result) {
+            init_graph(result['true_data'], result['pre_data'], result['x'], value);
+         })
+      }
+
+      function init_graph(true_data, pre_data, x_s, c_name) {
+         option = {
+            title: {
+               text: c_name+'疫情数据拟合',
+               left: 'center',
+               top: 16
+            },
+            xAxis: { data: x_s },
+            yAxis: {},
+            series: [{
+               symbolSize: 15,
+               data: true_data,
+               type: 'scatter',
+            },
+            {
+               symbolSize: 1,
+               data: pre_data,
+               type: 'line'
+            }
+            ]
+         };
+         var myChart = echarts.init(document.getElementById('charts'));
+         myChart.setOption(option);
+      }
+   </script>
+</body>
+
+</html>
